@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Digital Heroes Initiative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  /* ===== HERO (home-only) ===== */
+  .hero{padding:96px 0 64px; position:relative;}
+  .hero .eyebrow{margin-bottom:28px;}
+  .hero-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:center;}
+  .hero h1{
+    font-size:56px; line-height:1.05; margin-bottom:24px;
+    background:linear-gradient(135deg,#fff 30%,var(--blue-soft) 90%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p.lead{font-size:18px; line-height:1.65; color:var(--ink-dim); max-width:520px; margin-bottom:36px;}
+  .hero-actions{display:flex; gap:14px; margin-bottom:48px;}
+  .hero-stats{display:flex; gap:36px;}
+  .hero-stats .stat-num{font-family:'JetBrains Mono'; font-size:26px; font-weight:600; color:#fff;}
+  .hero-stats .stat-label{font-size:12.5px; color:var(--ink-faint); margin-top:4px;}
+
+  /* live terminal panel */
+  .term{
+    background:rgba(15,27,61,0.7); backdrop-filter:blur(16px);
+    border:1px solid var(--border); border-radius:18px; padding:0; overflow:hidden;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.5);
+  }
+  .term-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border);}
+  .term-head .dots{display:flex; gap:6px;}
+  .term-head .dots span{width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,0.15);}
+  .term-title{font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-faint); display:flex; align-items:center; gap:8px;}
+  .term-body{padding:24px;}
+  .term-row{display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--border);}
+  .term-row:last-child{border-bottom:none;}
+  .term-row .label{font-size:13.5px; color:var(--ink-dim);}
+  .term-row .val{font-family:'JetBrains Mono'; font-size:15px; font-weight:600; color:#fff;}
+  .badge-live{
+    display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600;
+    color:var(--teal); font-family:'JetBrains Mono'; text-transform:uppercase; letter-spacing:0.04em;
+  }
+
+  /* about / goals (home-only) */
+  .goals-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .icon-box{
+    width:46px; height:46px; border-radius:12px; margin-bottom:18px;
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+  }
+  .icon-blue{background:rgba(61,92,255,0.15); color:var(--blue-soft);}
+  .icon-purple{background:rgba(139,92,246,0.15); color:#B49CFF;}
+  .icon-teal{background:rgba(34,211,168,0.15); color:var(--teal);}
+  .glass-card h3{font-size:17px; margin-bottom:10px; color:#fff;}
+  .glass-card p{font-size:14.5px; color:var(--ink-dim); line-height:1.6;}
+
+  /* learning path */
+  .path{position:relative; padding-left:8px;}
+  .path-line{position:absolute; left:23px; top:12px; bottom:12px; width:2px; background:linear-gradient(180deg,var(--blue),var(--purple),var(--teal));}
+  .path-item{display:flex; gap:24px; margin-bottom:36px; position:relative;}
+  .path-item:last-child{margin-bottom:0;}
+  .path-num{
+    width:48px; height:48px; border-radius:50%; flex-shrink:0;
+    background:var(--panel-2); border:1px solid var(--border-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono'; font-weight:600; font-size:14px; color:var(--blue-soft);
+    z-index:1;
+  }
+  .path-content h4{font-size:17px; color:#fff; margin-bottom:6px;}
+  .path-content p{font-size:14.5px; color:var(--ink-dim); line-height:1.6; max-width:560px;}
+
+  /* stats */
+  .stats-band{
+    background:linear-gradient(135deg,rgba(61,92,255,0.08),rgba(139,92,246,0.08));
+    border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  }
+  .stats-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:0;}
+  .stats-grid .stat{text-align:center; padding:0 20px; border-right:1px solid var(--border);}
+  .stats-grid .stat:last-child{border-right:none;}
+  .stats-grid .num{font-family:'JetBrains Mono'; font-size:40px; font-weight:600; color:#fff; margin-bottom:8px;}
+  .stats-grid .lbl{font-size:13.5px; color:var(--ink-dim);}
+
+  /* success stories */
+  .stories-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .story-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:26px;
+  }
+  .story-quote{font-size:14.5px; line-height:1.7; color:var(--ink-dim); margin-bottom:20px; min-height:95px;}
+  .story-person{display:flex; align-items:center; gap:12px;}
+  .avatar{
+    width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(135deg,var(--blue),var(--purple));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:600; font-size:14px; color:#fff;
+  }
+  .story-person .name{font-size:14px; font-weight:600; color:#fff;}
+  .story-person .role{font-size:12.5px; color:var(--ink-faint);}
+
+  /* upcoming sessions */
+  .sessions-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .session-card{
+    background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:14px;
+    padding:22px; transition:border-color .2s;
+  }
+  .session-card:hover{border-color:var(--border-strong);}
+  .session-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+  .session-num{font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-faint);}
+  .session-card h4{font-size:15.5px; color:#fff; margin-bottom:8px;}
+  .session-meta{font-size:13px; color:var(--ink-dim); display:flex; gap:14px; margin-bottom:16px;}
+  .session-meta span{display:flex; align-items:center; gap:5px;}
+
+  /* CTA */
+  .cta-band{
+    margin:0 32px; max-width:1176px; margin-left:auto; margin-right:auto;
+    background:linear-gradient(135deg,rgba(61,92,255,0.15),rgba(139,92,246,0.15));
+    border:1px solid var(--border-strong); border-radius:24px;
+    padding:64px; text-align:center; position:relative; overflow:hidden;
+  }
+  .cta-band h2{font-size:34px; margin-bottom:14px;}
+  .cta-band p{color:var(--ink-dim); font-size:16px; margin-bottom:32px; max-width:480px; margin-left:auto; margin-right:auto;}
+  .cta-actions{display:flex; gap:14px; justify-content:center;}
+
+  @media(max-width:980px){
+    .hero-grid{grid-template-columns:1fr;}
+    .goals-grid, .stories-grid, .sessions-grid{grid-template-columns:1fr;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .hero h1{font-size:38px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">DH</div>
+      Digital Heroes Initiative
+    </a>
+    <div class="navlinks">
+      <a href="index.html" class="active">Home</a>
+      <a href="virtual-sessions.html">Virtual sessions</a>
+      <a href="practical-sessions.html">Practical sessions</a>
+      <a href="courses.html">Courses</a>
+      <a href="https://t.me/digitalheroesegypt" target="_blank" rel="noopener">Files library</a>
+      <a href="https://t.me/digitalheroesegypt" target="_blank" rel="noopener">Video library</a>
+      <a href="#footer">Contact</a>
+    </div>
+    <div class="navcta" id="navCta">
+      <a href="login.html" class="btn btn-ghost">Log in</a>
+      <a href="signup.html" class="btn btn-primary">Join free</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="signal"></span> Cohort 3 enrollment is open</div>
+      <h1>Train like the<br>next generation<br>of builders.</h1>
+      <p class="lead">25 live sessions, 6 hands-on labs, and a full resource library — everything a student needs to go from first line of code to shipped project.</p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn btn-primary">Start learning <span>&rarr;</span></a>
+        <a href="#" class="btn btn-ghost">View curriculum</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">3,240+</div><div class="stat-label">Students trained</div></div>
+        <div><div class="stat-num">31</div><div class="stat-label">Total sessions</div></div>
+        <div><div class="stat-num">96%</div><div class="stat-label">Completion rate</div></div>
+      </div>
+    </div>
+
+    <div class="term">
+      <div class="term-head">
+        <div class="term-title"><span class="signal"></span> live platform status</div>
+        <div class="dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="term-body">
+        <div class="term-row">
+          <span class="label">Students online now</span>
+          <span class="val mono">427</span>
+        </div>
+        <div class="term-row">
+          <span class="label">Active session</span>
+          <span class="val">Session 14 · React Basics</span>
+        </div>
+        <div class="term-row">
+          <span class="label">Registered students</span>
+          <span class="val mono">3,241</span>
+        </div>
+        <div class="term-row">
+          <span class="label">Next practical lab</span>
+          <span class="val">Tue, 2:00 PM</span>
+        </div>
+        <div class="term-row">
+          <span class="label" style="display:flex;align-items:center;gap:8px;"><span class="badge-live">&bull; live</span> Website visits today</span>
+          <span class="val mono">8,902</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">About the initiative</span>
+      <h2>Built by engineers, for the next generation.</h2>
+      <p>Digital Heroes Initiative is a free technology education program giving students structured, mentor-led training in real, in-demand programming skills — not just tutorials, but a complete path with live instruction, hands-on labs, and a community to push through it with.</p>
+    </div>
+    <div class="goals-grid">
+      <div class="glass-card">
+        <div class="icon-box icon-blue">&#9737;</div>
+        <h3>Close the skills gap</h3>
+        <p>Give students access to the same caliber of training normally reserved for paid bootcamps — at zero cost.</p>
+      </div>
+      <div class="glass-card">
+        <div class="icon-box icon-purple">&#9670;</div>
+        <h3>Learn by building</h3>
+        <p>Every session ties back to a real project. Students leave each lab with something they actually built.</p>
+      </div>
+      <div class="glass-card">
+        <div class="icon-box icon-teal">&#9650;</div>
+        <h3>Build a peer network</h3>
+        <p>Cohorts learn together, ship together, and stay connected long after the program ends.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="path">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">Learning path</span>
+      <h2>From first principles to a finished build.</h2>
+    </div>
+    <div class="path">
+      <div class="path-line"></div>
+      <div class="path-item">
+        <div class="path-num">01</div>
+        <div class="path-content">
+          <h4>Foundations</h4>
+          <p>Programming fundamentals, logic, and how the web actually works — the base every later session builds on.</p>
+        </div>
+      </div>
+      <div class="path-item">
+        <div class="path-num">02</div>
+        <div class="path-content">
+          <h4>Core skills</h4>
+          <p>HTML, CSS, JavaScript, and your first real applications, reinforced through weekly live sessions.</p>
+        </div>
+      </div>
+      <div class="path-item">
+        <div class="path-num">03</div>
+        <div class="path-content">
+          <h4>Hands-on labs</h4>
+          <p>Six in-person practical sessions where students apply what they've learned under direct mentorship.</p>
+        </div>
+      </div>
+      <div class="path-item">
+        <div class="path-num">04</div>
+        <div class="path-content">
+          <h4>Capstone & certification</h4>
+          <p>Ship a final project, present it to mentors, and earn a certificate recognizing the full path completed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-band">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat"><div class="num">3,241</div><div class="lbl">Registered students</div></div>
+      <div class="stat"><div class="num">427</div><div class="lbl">Online right now</div></div>
+      <div class="stat"><div class="num">31</div><div class="lbl">Total sessions</div></div>
+      <div class="stat"><div class="num">214</div><div class="lbl">Certificates issued</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="stories">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-tag">Student success stories</span>
+      <h2>Real students. Real outcomes.</h2>
+    </div>
+    <div class="stories-grid">
+      <div class="story-card">
+        <p class="story-quote">"I came in with zero coding background. Six months later I built my own portfolio site and landed an internship."</p>
+        <div class="story-person">
+          <div class="avatar">MY</div>
+          <div><div class="name">Mariam Youssef</div><div class="role">Cohort 2 graduate</div></div>
+        </div>
+      </div>
+      <div class="story-card">
+        <p class="story-quote">"The practical labs made the difference. Sitting with a mentor and actually debugging real code taught me more than months of videos."</p>
+        <div class="story-person">
+          <div class="avatar">AH</div>
+          <div><div class="name">Ahmed Hassan</div><div class="role">Cohort 2 graduate</div></div>
+        </div>
+      </div>
+      <div class="story-card">
+        <p class="story-quote">"I went from watching tutorials I didn't understand to building my own apps. The structure is what made it click."</p>
+        <div class="story-person">
+          <div class="avatar">SK</div>
+          <div><div class="name">Sara Khaled</div><div class="role">Cohort 1 graduate</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="upcoming">
+  <div class="wrap">
+    <div class="section-head" style="display:flex; justify-content:space-between; align-items:flex-end; max-width:none;">
+      <div>
+        <span class="section-tag">Upcoming sessions</span>
+        <h2 style="margin-bottom:0;">What's coming up.</h2>
+      </div>
+      <a href="virtual-sessions.html" class="btn btn-ghost">View all sessions</a>
+    </div>
+    <div class="sessions-grid">
+      <div class="session-card">
+        <div class="session-top">
+          <span class="session-num mono">SESSION 14</span>
+          <span class="badge-live"><span class="signal"></span> upcoming</span>
+        </div>
+        <h4>React fundamentals</h4>
+        <div class="session-meta">
+          <span>&#128197; Tue, Jul 1</span>
+          <span>&#128337; 6:00 PM</span>
+        </div>
+        <a href="virtual-sessions.html" class="btn btn-primary" style="width:100%; justify-content:center;">Join session</a>
+      </div>
+      <div class="session-card">
+        <div class="session-top">
+          <span class="session-num mono">PRACTICAL 04</span>
+          <span class="badge-live"><span class="signal"></span> upcoming</span>
+        </div>
+        <h4>Build your first API</h4>
+        <div class="session-meta">
+          <span>&#128197; Thu, Jul 3</span>
+          <span>&#128205; Innovation Hub</span>
+        </div>
+        <a href="practical-sessions.html" class="btn btn-primary" style="width:100%; justify-content:center;">Open location</a>
+      </div>
+      <div class="session-card">
+        <div class="session-top">
+          <span class="session-num mono">SESSION 15</span>
+          <span class="badge-live"><span class="signal"></span> upcoming</span>
+        </div>
+        <h4>Git and version control</h4>
+        <div class="session-meta">
+          <span>&#128197; Sat, Jul 5</span>
+          <span>&#128337; 4:00 PM</span>
+        </div>
+        <a href="virtual-sessions.html" class="btn btn-primary" style="width:100%; justify-content:center;">Join session</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta" style="padding-top:0;">
+  <div class="cta-band">
+    <h2>Ready to start building?</h2>
+    <p>Join the next cohort and get full access to every session, lab, and resource — completely free.</p>
+    <div class="cta-actions">
+      <a href="signup.html" class="btn btn-primary">Create your account</a>
+      <a href="https://wa.me/qr/EU6HFG3MS5I5I1" target="_blank" rel="noopener" class="btn btn-ghost">Talk to the team</a>
+    </div>
+  </div>
+</section>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="index.html" class="logo" style="margin-bottom:16px;">
+          <div class="logo-mark">DH</div>
+          Digital Heroes Initiative
+        </a>
+        <p style="color:var(--ink-faint); font-size:13.5px; line-height:1.6; max-width:280px;">Free, structured technology education for the next generation of builders.</p>
+        <div class="social-row" id="socialRow"></div>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="virtual-sessions.html">Virtual sessions</a>
+        <a href="practical-sessions.html">Practical sessions</a>
+      <a href="courses.html">Courses</a>
+        <a href="https://t.me/digitalheroesegypt" target="_blank" rel="noopener">Files library</a>
+        <a href="https://t.me/digitalheroesegypt" target="_blank" rel="noopener">Video library</a>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <a href="signup.html">Create account</a>
+        <a href="login.html">Log in</a>
+        <a href="#">Student profile</a>
+        <a href="#">Certificates</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="#footer">Contact us</a>
+        <a href="mailto:digitalheroesinitiative@gmail.com">digitalheroesinitiative@gmail.com</a>
+        <a href="#">FAQ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Digital Heroes Initiative. All rights reserved.</span>
+      <span class="mono">Built for the next generation.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="social-icons.js"></script>
+<script type="module" src="nav-auth.js"></script>
+</body>
+</html>

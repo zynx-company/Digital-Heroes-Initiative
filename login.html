@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log In — Digital Heroes Initiative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .demo-tag{
+    position:fixed; top:90px; right:24px; z-index:40;
+    background:rgba(61,92,255,0.12); border:1px solid rgba(61,92,255,0.35);
+    color:var(--blue-soft); font-family:'JetBrains Mono'; font-size:11.5px; font-weight:600;
+    padding:8px 14px; border-radius:100px; display:flex; align-items:center; gap:8px;
+    max-width:260px; text-align:right;
+  }
+  @media(max-width:780px){ .demo-tag{position:static; margin:16px auto 0; max-width:none; width:fit-content;} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">DH</div>
+      Digital Heroes Initiative
+    </a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="virtual-sessions.html">Virtual sessions</a>
+      <a href="practical-sessions.html">Practical sessions</a>
+      <a href="courses.html">Courses</a>
+      <a href="mailto:digitalheroesinitiative@gmail.com">Contact</a>
+    </div>
+    <div class="navcta" id="navCta">
+      <a href="login.html" class="btn btn-ghost">Log in</a>
+      <a href="signup.html" class="btn btn-primary">Join free</a>
+    </div>
+  </div>
+</nav>
+
+<div class="demo-tag">&#9889; Connected to Firebase — real accounts</div>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-head">
+      <a href="index.html" class="logo"><div class="logo-mark">DH</div></a>
+      <h1>Welcome back</h1>
+      <p>Log in to continue your learning path.</p>
+    </div>
+
+    <div class="auth-alert success" id="signupSuccessAlert">
+      &#9989; Account created. Log in below to continue.
+    </div>
+    <div class="auth-alert error" id="formAlert"></div>
+
+    <form id="loginForm" novalidate>
+      <div class="field-group" id="group-email">
+        <label class="field-label" for="email">Email address</label>
+        <input class="field-input" type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+        <div class="field-error">Enter a valid email address.</div>
+      </div>
+
+      <div class="field-group" id="group-password">
+        <label class="field-label" for="password">Password</label>
+        <div class="password-row">
+          <input class="field-input" type="password" id="password" placeholder="Your password" autocomplete="current-password" />
+          <button type="button" class="password-toggle" data-target="password">Show</button>
+        </div>
+        <div class="field-error">Incorrect password.</div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-bottom:18px;">
+        <a href="#" style="font-size:13px; color:var(--blue-soft); text-decoration:none;">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary auth-submit">Log in</button>
+    </form>
+
+    <div class="auth-divider">or</div>
+    <p class="auth-foot">Don't have an account? <a href="signup.html">Create one for free</a></p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="index.html" class="logo" style="margin-bottom:16px;">
+          <div class="logo-mark">DH</div>
+          Digital Heroes Initiative
+        </a>
+        <p style="color:var(--ink-faint); font-size:13.5px; line-height:1.6; max-width:280px;">Free, structured technology education for the next generation of builders.</p>
+        <div class="social-row" id="socialRow"></div>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="virtual-sessions.html">Virtual sessions</a>
+        <a href="practical-sessions.html">Practical sessions</a>
+        <a href="courses.html">Courses</a>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <a href="signup.html">Create account</a>
+        <a href="login.html">Log in</a>
+        <a href="#">Student profile</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="mailto:digitalheroesinitiative@gmail.com">Contact us</a>
+        <a href="mailto:digitalheroesinitiative@gmail.com">digitalheroesinitiative@gmail.com</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Digital Heroes Initiative. All rights reserved.</span>
+      <span class="mono">Built for the next generation.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="social-icons.js"></script>
+<script type="module">
+  // ============================================================
+  // REAL LOGIN — Firebase Authentication
+  // ============================================================
+  import { loginStudent, getStudentProfile, friendlyAuthError } from "./firebase-app.js";
+
+  if (new URLSearchParams(window.location.search).get('justSignedUp')){
+    document.getElementById('signupSuccessAlert').classList.add('show');
+  }
+
+  document.querySelectorAll('.password-toggle').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const input = document.getElementById(btn.dataset.target);
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.textContent = isPw ? 'Hide' : 'Show';
+    });
+  });
+
+  function clearErrors(){
+    document.querySelectorAll('.field-group').forEach(g => g.classList.remove('has-error'));
+    document.getElementById('formAlert').classList.remove('show');
+  }
+  function showAlert(msg){
+    const el = document.getElementById('formAlert');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  const form = document.getElementById('loginForm');
+  const submitBtn = form.querySelector('.auth-submit');
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    clearErrors();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      document.getElementById('group-email').classList.add('has-error');
+      return;
+    }
+    if (!password){
+      document.getElementById('group-password').classList.add('has-error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+
+    try {
+      const user = await loginStudent({ email, password });
+      const profile = await getStudentProfile(user.uid);
+
+      form.style.display = 'none';
+      const ok = document.getElementById('signupSuccessAlert');
+      ok.textContent = '✅ Welcome back' + (profile?.fullName ? ', ' + profile.fullName : '') + '! Redirecting...';
+      ok.classList.add('show');
+
+      // Where to send the student after login — defaults to home,
+      // or back to whatever page sent them here (e.g. a session page).
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
+      setTimeout(()=>{ window.location.href = redirectTo; }, 1200);
+    } catch (err) {
+      console.error(err);
+      showAlert(friendlyAuthError(err));
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log in';
+    }
+  });
+</script>
+
+<script type="module" src="nav-auth.js"></script>
+</body>
+</html>
