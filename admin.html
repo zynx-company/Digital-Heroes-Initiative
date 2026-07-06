@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Panel — Digital Heroes Initiative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070B1A;
+  --panel:#0F1B3D;
+  --panel-2:#131F47;
+  --blue:#3D5CFF;
+  --blue-soft:#7C8FFF;
+  --purple:#8B5CF6;
+  --teal:#22D3A8;
+  --red:#FF6B81;
+  --ink:#E8ECFF;
+  --ink-dim:#9AA4D6;
+  --ink-faint:#5C679A;
+  --border:rgba(140,155,255,0.14);
+  --border-strong:rgba(140,155,255,0.28);
+  --sidebar-w:240px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+  display:flex; min-height:100vh;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 900px 600px at 15% -5%,rgba(61,92,255,0.2),transparent 60%),
+    radial-gradient(ellipse 700px 500px at 90% 10%,rgba(139,92,246,0.14),transparent 60%);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:var(--sidebar-w); flex-shrink:0; position:fixed; top:0; left:0; height:100vh;
+  background:rgba(15,27,61,0.7); backdrop-filter:blur(20px);
+  border-right:1px solid var(--border); display:flex; flex-direction:column;
+  z-index:10; overflow-y:auto;
+}
+.sidebar-logo{
+  display:flex; align-items:center; gap:10px; padding:22px 20px 18px;
+  border-bottom:1px solid var(--border); text-decoration:none;
+}
+.logo-mark{
+  width:34px; height:34px; border-radius:9px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; font-weight:700; color:#fff;
+  box-shadow:0 0 20px rgba(61,92,255,0.4);
+}
+.sidebar-logo span{font-family:'Space Grotesk'; font-weight:700; font-size:14px; color:var(--ink); line-height:1.3;}
+.sidebar-section{padding:16px 12px 8px; font-family:'JetBrains Mono'; font-size:10px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.08em;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 16px; margin:2px 8px;
+  border-radius:10px; cursor:pointer; transition:background .2s, color .2s;
+  font-size:13.5px; font-weight:500; color:var(--ink-dim); border:none; background:none;
+  width:calc(100% - 16px); text-align:left;
+}
+.nav-item:hover{background:rgba(255,255,255,0.05); color:var(--ink);}
+.nav-item.active{background:rgba(61,92,255,0.18); color:#fff; font-weight:600;}
+.nav-item .icon{font-size:16px; width:20px; text-align:center; flex-shrink:0;}
+.sidebar-footer{margin-top:auto; padding:16px; border-top:1px solid var(--border);}
+.admin-badge{
+  display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:10px;
+  background:rgba(255,255,255,0.04); border:1px solid var(--border);
+}
+.admin-avatar{
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff;
+}
+.admin-info{flex:1; min-width:0;}
+.admin-info .name{font-size:12.5px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.admin-info .role{font-size:11px; color:var(--teal);}
+
+/* ===== MAIN ===== */
+.main{margin-left:var(--sidebar-w); flex:1; padding:32px; position:relative; z-index:1;}
+.top-bar{display:flex; align-items:center; justify-content:space-between; margin-bottom:32px;}
+.page-title{font-family:'Space Grotesk'; font-size:26px; font-weight:700; color:#fff;}
+.page-subtitle{font-size:13.5px; color:var(--ink-faint); margin-top:4px;}
+
+/* ===== SECTION (TABS) ===== */
+.section{display:none;}
+.section.active{display:block;}
+
+/* ===== STATS ROW ===== */
+.stats-row{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px;}
+.stat-card{
+  background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:20px;
+}
+.stat-label{font-family:'JetBrains Mono'; font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;}
+.stat-val{font-size:28px; font-weight:700; color:#fff; font-family:'Space Grotesk';}
+.stat-sub{font-size:12px; color:var(--ink-faint); margin-top:4px;}
+
+/* ===== CARD ===== */
+.card{
+  background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:16px;
+  padding:24px; margin-bottom:24px;
+}
+.card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+.card-title{font-family:'Space Grotesk'; font-size:17px; font-weight:600; color:#fff;}
+.card-subtitle{font-size:13px; color:var(--ink-faint); margin-top:3px;}
+
+/* ===== FORM ===== */
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.form-grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+.form-full{grid-column:1/-1;}
+.field{margin-bottom:0;}
+.field label{display:block; font-size:12.5px; font-weight:500; color:var(--ink-dim); margin-bottom:6px;}
+.field input, .field select, .field textarea{
+  width:100%; padding:11px 14px; border-radius:9px;
+  background:rgba(255,255,255,0.04); border:1px solid var(--border-strong);
+  color:var(--ink); font-size:14px; font-family:'Inter'; outline:none;
+  transition:border-color .2s, background .2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{
+  border-color:var(--blue); background:rgba(61,92,255,0.06);
+}
+.field input::placeholder, .field textarea::placeholder{color:var(--ink-faint);}
+.field select option{background:#0F1B3D; color:var(--ink);}
+.field textarea{resize:vertical; min-height:80px;}
+
+/* ===== BUTTONS ===== */
+.btn{
+  font-family:'Inter'; font-weight:600; font-size:13.5px; padding:10px 20px; border-radius:9px;
+  cursor:pointer; border:none; transition:transform .15s, box-shadow .15s, background .2s;
+  display:inline-flex; align-items:center; gap:7px; white-space:nowrap;
+}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#5B6EFF); color:#fff; box-shadow:0 6px 20px -6px rgba(61,92,255,0.6);}
+.btn-primary:hover{transform:translateY(-1px); box-shadow:0 10px 24px -6px rgba(61,92,255,0.75);}
+.btn-ghost{background:rgba(255,255,255,0.04); color:var(--ink); border:1px solid var(--border-strong);}
+.btn-ghost:hover{background:rgba(255,255,255,0.08);}
+.btn-danger{background:rgba(255,107,129,0.1); color:var(--red); border:1px solid rgba(255,107,129,0.3);}
+.btn-danger:hover{background:rgba(255,107,129,0.2);}
+.btn-sm{padding:7px 14px; font-size:12.5px;}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto; border-radius:12px; border:1px solid var(--border);}
+table{width:100%; border-collapse:collapse;}
+thead tr{background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border);}
+th{padding:12px 16px; text-align:left; font-size:11.5px; font-weight:600; color:var(--ink-faint); font-family:'JetBrains Mono'; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap;}
+td{padding:13px 16px; font-size:13.5px; color:var(--ink-dim); border-bottom:1px solid var(--border); vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:rgba(255,255,255,0.02);}
+td .name{color:var(--ink); font-weight:500;}
+.badge{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:100px; font-size:11.5px; font-weight:600; font-family:'JetBrains Mono';}
+.badge-green{background:rgba(34,211,168,0.12); color:var(--teal); border:1px solid rgba(34,211,168,0.25);}
+.badge-blue{background:rgba(61,92,255,0.12); color:var(--blue-soft); border:1px solid rgba(61,92,255,0.25);}
+.badge-gray{background:rgba(255,255,255,0.06); color:var(--ink-faint); border:1px solid var(--border);}
+
+/* ===== ITEMS LIST ===== */
+.items-list{display:flex; flex-direction:column; gap:10px;}
+.item-row{
+  display:flex; align-items:center; gap:14px; padding:14px 16px;
+  background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:11px;
+  transition:border-color .2s;
+}
+.item-row:hover{border-color:var(--border-strong);}
+.item-num{font-family:'JetBrains Mono'; font-size:11px; color:var(--ink-faint); min-width:28px;}
+.item-info{flex:1; min-width:0;}
+.item-info .title{font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.item-info .meta{font-size:12px; color:var(--ink-faint); margin-top:2px;}
+.item-actions{display:flex; gap:8px; flex-shrink:0;}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed; bottom:28px; right:28px; z-index:999;
+  background:rgba(34,211,168,0.15); border:1px solid rgba(34,211,168,0.35); color:var(--teal);
+  padding:12px 20px; border-radius:12px; font-size:14px; font-weight:500;
+  display:none; align-items:center; gap:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4); backdrop-filter:blur(12px);
+}
+.toast.show{display:flex;}
+.toast.error{background:rgba(255,107,129,0.15); border-color:rgba(255,107,129,0.35); color:var(--red);}
+
+/* ===== EMPTY STATE ===== */
+.empty{
+  text-align:center; padding:48px 24px; color:var(--ink-faint); font-size:14px;
+}
+.empty .empty-icon{font-size:36px; margin-bottom:12px; opacity:0.5;}
+
+/* ===== DIVIDER ===== */
+.divider{border:none; border-top:1px solid var(--border); margin:24px 0;}
+
+/* ===== LOADING ===== */
+.loading{text-align:center; padding:32px; color:var(--ink-faint); font-size:14px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">
+    <div class="logo-mark">DH</div>
+    <span>Digital Heroes<br>Admin</span>
+  </a>
+
+  <div class="sidebar-section">Overview</div>
+  <button class="nav-item active" onclick="showSection('dashboard')">
+    <span class="icon">📊</span> Dashboard
+  </button>
+
+  <div class="sidebar-section">Content</div>
+  <button class="nav-item" onclick="showSection('virtual')">
+    <span class="icon">🖥️</span> Virtual Sessions
+  </button>
+  <button class="nav-item" onclick="showSection('practical')">
+    <span class="icon">📍</span> Practical Sessions
+  </button>
+  <button class="nav-item" onclick="showSection('courses')">
+    <span class="icon">📚</span> Courses
+  </button>
+  <button class="nav-item" onclick="showSection('videos')">
+    <span class="icon">🎬</span> Video Library
+  </button>
+  <button class="nav-item" onclick="showSection('files')">
+    <span class="icon">📁</span> Files Library
+  </button>
+
+  <div class="sidebar-section">People</div>
+  <button class="nav-item" onclick="showSection('students')">
+    <span class="icon">👥</span> Students
+  </button>
+
+  <div class="sidebar-footer">
+    <div class="admin-badge">
+      <div class="admin-avatar">A</div>
+      <div class="admin-info">
+        <div class="name">Admin</div>
+        <div class="role">● Online</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="section active" id="sec-dashboard">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Overview of the Digital Heroes platform</div>
+      </div>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-val" id="statStudents">—</div>
+        <div class="stat-sub">Registered accounts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Virtual Sessions</div>
+        <div class="stat-val" id="statVirtual">—</div>
+        <div class="stat-sub">Scheduled sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Practical Sessions</div>
+        <div class="stat-val" id="statPractical">—</div>
+        <div class="stat-sub">In-person labs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Courses</div>
+        <div class="stat-val" id="statCourses">—</div>
+        <div class="stat-sub">Published courses</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Recent Students</div>
+          <div class="card-subtitle">Latest registrations</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showSection('students')">View all</button>
+      </div>
+      <div id="recentStudentsTable"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ===== VIRTUAL SESSIONS ===== -->
+  <div class="section" id="sec-virtual">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Virtual Sessions</div>
+        <div class="page-subtitle">Add, edit or remove online sessions</div>
+      </div>
+      <button class="btn btn-primary" onclick="openVirtualForm()">+ Add Session</button>
+    </div>
+
+    <!-- ADD/EDIT FORM -->
+    <div class="card" id="virtualForm" style="display:none;">
+      <div class="card-head">
+        <div class="card-title" id="virtualFormTitle">Add Virtual Session</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Session Number</label>
+          <input type="number" id="v-num" placeholder="e.g. 15" min="1" max="99">
+        </div>
+        <div class="field">
+          <label>Instructor Name</label>
+          <input type="text" id="v-instructor" placeholder="e.g. Youssef Sami">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="v-date">
+        </div>
+        <div class="field">
+          <label>Time</label>
+          <input type="time" id="v-time">
+        </div>
+        <div class="field form-full">
+          <label>Session Topic</label>
+          <input type="text" id="v-topic" placeholder="e.g. React Basics – Components & Props">
+        </div>
+        <div class="field form-full">
+          <label>Join Link (Zoom / Meet / Teams)</label>
+          <input type="url" id="v-link" placeholder="https://meet.google.com/...">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn btn-primary" onclick="saveVirtualSession()">Save Session</button>
+        <button class="btn btn-ghost" onclick="closeVirtualForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">All Sessions</div>
+      </div>
+      <div id="virtualList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ===== PRACTICAL SESSIONS ===== -->
+  <div class="section" id="sec-practical">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Practical Sessions</div>
+        <div class="page-subtitle">Manage in-person lab sessions</div>
+      </div>
+      <button class="btn btn-primary" onclick="openPracticalForm()">+ Add Lab</button>
+    </div>
+
+    <div class="card" id="practicalForm" style="display:none;">
+      <div class="card-head">
+        <div class="card-title" id="practicalFormTitle">Add Practical Session</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Lab Number</label>
+          <input type="number" id="p-num" placeholder="e.g. 7" min="1">
+        </div>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="p-title" placeholder="e.g. Build Your First API">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="p-date">
+        </div>
+        <div class="field">
+          <label>Time</label>
+          <input type="time" id="p-time">
+        </div>
+        <div class="field">
+          <label>Duration (hours)</label>
+          <input type="number" id="p-duration" placeholder="e.g. 3" min="1" max="12">
+        </div>
+        <div class="field">
+          <label>Total Seats</label>
+          <input type="number" id="p-seats" placeholder="e.g. 50" min="1">
+        </div>
+        <div class="field">
+          <label>Instructor Name</label>
+          <input type="text" id="p-instructor" placeholder="e.g. Nour Adel">
+        </div>
+        <div class="field">
+          <label>Location / Venue</label>
+          <input type="text" id="p-location" placeholder="e.g. Innovation Hub, Smart Village">
+        </div>
+        <div class="field form-full">
+          <label>Description</label>
+          <textarea id="p-desc" placeholder="Short description of what students will do in this lab..."></textarea>
+        </div>
+        <div class="field form-full">
+          <label>Google Maps Link (optional)</label>
+          <input type="url" id="p-map" placeholder="https://maps.google.com/...">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="p-status">
+            <option value="open">Open</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn btn-primary" onclick="savePracticalSession()">Save Lab</button>
+        <button class="btn btn-ghost" onclick="closePracticalForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">All Labs</div></div>
+      <div id="practicalList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ===== COURSES ===== -->
+  <div class="section" id="sec-courses">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Courses</div>
+        <div class="page-subtitle">Manage self-paced course catalogue</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCourseForm()">+ Add Course</button>
+    </div>
+
+    <div class="card" id="courseForm" style="display:none;">
+      <div class="card-head">
+        <div class="card-title" id="courseFormTitle">Add Course</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Course Title</label>
+          <input type="text" id="c-title" placeholder="e.g. HTML & CSS Foundations">
+        </div>
+        <div class="field">
+          <label>Category / Tag</label>
+          <input type="text" id="c-tag" placeholder="e.g. Web Development">
+        </div>
+        <div class="field form-full">
+          <label>Description</label>
+          <textarea id="c-desc" placeholder="What will students learn in this course?"></textarea>
+        </div>
+        <div class="field">
+          <label>Icon (Emoji)</label>
+          <input type="text" id="c-icon" placeholder="e.g. 🧪">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="c-status">
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+            <option value="coming-soon">Coming Soon</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn btn-primary" onclick="saveCourse()">Save Course</button>
+        <button class="btn btn-ghost" onclick="closeCourseForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">All Courses</div></div>
+      <div id="courseList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ===== VIDEO LIBRARY ===== -->
+  <div class="section" id="sec-videos">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Video Library</div>
+        <div class="page-subtitle">Add YouTube or any video links for students</div>
+      </div>
+      <button class="btn btn-primary" onclick="openVideoForm()">+ Add Video</button>
+    </div>
+
+    <div class="card" id="videoForm" style="display:none;">
+      <div class="card-head">
+        <div class="card-title" id="videoFormTitle">Add Video</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Video Title</label>
+          <input type="text" id="vid-title" placeholder="e.g. Intro to JavaScript — Session 3">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input type="text" id="vid-cat" placeholder="e.g. JavaScript, HTML, React...">
+        </div>
+        <div class="field form-full">
+          <label>Video URL (YouTube / Drive / any link)</label>
+          <input type="url" id="vid-url" placeholder="https://youtube.com/watch?v=...">
+        </div>
+        <div class="field">
+          <label>Duration (e.g. 45 min)</label>
+          <input type="text" id="vid-duration" placeholder="45 min">
+        </div>
+        <div class="field">
+          <label>Related Session (optional)</label>
+          <input type="text" id="vid-session" placeholder="e.g. Session 03">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn btn-primary" onclick="saveVideo()">Save Video</button>
+        <button class="btn btn-ghost" onclick="closeVideoForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">All Videos</div></div>
+      <div id="videoList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ===== FILES LIBRARY ===== -->
+  <div class="section" id="sec-files">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Files Library</div>
+        <div class="page-subtitle">Share resources, slides, and documents with students</div>
+      </div>
+      <button class="btn btn-primary" onclick="openFileForm()">+ Add File</button>
+    </div>
+
+    <div class="card" id="fileForm" style="display:none;">
+      <div class="card-head">
+        <div class="card-title" id="fileFormTitle">Add File</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>File Name</label>
+          <input type="text" id="f-title" placeholder="e.g. Session 3 — JS Slides">
+        </div>
+        <div class="field">
+          <label>File Type</label>
+          <select id="f-type">
+            <option value="PDF">PDF</option>
+            <option value="Slides">Slides</option>
+            <option value="Doc">Doc</option>
+            <option value="Sheet">Sheet</option>
+            <option value="ZIP">ZIP</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field form-full">
+          <label>File URL (Google Drive / Dropbox / any link)</label>
+          <input type="url" id="f-url" placeholder="https://drive.google.com/...">
+        </div>
+        <div class="field">
+          <label>Related Session (optional)</label>
+          <input type="text" id="f-session" placeholder="e.g. Session 03">
+        </div>
+        <div class="field">
+          <label>Size (optional)</label>
+          <input type="text" id="f-size" placeholder="e.g. 2.4 MB">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn btn-primary" onclick="saveFile()">Save File</button>
+        <button class="btn btn-ghost" onclick="closeFileForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">All Files</div></div>
+      <div id="fileList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ===== STUDENTS ===== -->
+  <div class="section" id="sec-students">
+    <div class="top-bar">
+      <div>
+        <div class="page-title">Students</div>
+        <div class="page-subtitle">All registered students</div>
+      </div>
+      <input type="text" id="studentSearch" placeholder="🔍  Search by name or email..." onInput="filterStudents()"
+        style="padding:9px 14px;border-radius:9px;background:rgba(255,255,255,0.04);border:1px solid var(--border-strong);color:var(--ink);font-size:13.5px;font-family:'Inter';outline:none;width:260px;">
+    </div>
+    <div class="card">
+      <div id="studentsTable"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, getDoc, doc, deleteDoc, updateDoc, setDoc,
+  serverTimestamp, query, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4kDJ1pvlZMRmBGArrQSrQZl4LPxptf0A",
+  authDomain: "digital-heroes-initiative.firebaseapp.com",
+  projectId: "digital-heroes-initiative",
+  storageBucket: "digital-heroes-initiative.firebasestorage.app",
+  messagingSenderId: "635795811598",
+  appId: "1:635795811598:web:aeb9a249bdef5e976a3b5f",
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// ===== TOAST =====
+function toast(msg, isError=false){
+  const el = document.getElementById('toast');
+  el.textContent = (isError ? '❌ ' : '✅ ') + msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(()=>{ el.classList.remove('show'); }, 3000);
+}
+window.toast = toast;
+
+// ===== NAV =====
+window.showSection = function(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(name==='dashboard') loadDashboard();
+  if(name==='virtual') loadVirtualSessions();
+  if(name==='practical') loadPracticalSessions();
+  if(name==='courses') loadCourses();
+  if(name==='videos') loadVideos();
+  if(name==='files') loadFiles();
+  if(name==='students') loadStudents();
+};
+
+// ===== FORMAT DATE =====
+function fmtDate(dateStr){
+  if(!dateStr) return '—';
+  const d = new Date(dateStr+'T00:00:00');
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+}
+function fmtTime(timeStr){
+  if(!timeStr) return '';
+  const [h,m] = timeStr.split(':');
+  const d = new Date(); d.setHours(+h,+m);
+  return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+// ===== DASHBOARD =====
+async function loadDashboard(){
+  try{
+    const [students,virtual_,practical,courses] = await Promise.all([
+      getDocs(collection(db,'students')),
+      getDocs(collection(db,'virtualSessions')),
+      getDocs(collection(db,'practicalSessions')),
+      getDocs(collection(db,'courses')),
+    ]);
+    document.getElementById('statStudents').textContent = students.size;
+    document.getElementById('statVirtual').textContent = virtual_.size;
+    document.getElementById('statPractical').textContent = practical.size;
+    document.getElementById('statCourses').textContent = courses.size;
+
+    // Recent students table
+    const rows = students.docs.slice(-5).reverse();
+    if(rows.length===0){
+      document.getElementById('recentStudentsTable').innerHTML = '<div class="empty"><div class="empty-icon">👥</div>No students yet.</div>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Age</th><th>Joined</th></tr></thead><tbody>';
+    rows.forEach(d=>{
+      const s=d.data();
+      const joined = s.createdAt?.toDate ? s.createdAt.toDate().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      html+=`<tr><td><span class="name">${s.fullName||'—'}</span></td><td>${s.email||'—'}</td><td>${s.age||'—'}</td><td>${joined}</td></tr>`;
+    });
+    html+='</tbody></table></div>';
+    document.getElementById('recentStudentsTable').innerHTML = html;
+  }catch(e){ console.error(e); }
+}
+
+// =============================================
+// ===== VIRTUAL SESSIONS =====
+// =============================================
+let editingVirtualId = null;
+
+window.openVirtualForm = function(){
+  editingVirtualId = null;
+  document.getElementById('virtualFormTitle').textContent = 'Add Virtual Session';
+  ['v-num','v-instructor','v-topic','v-link'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('v-date').value='';
+  document.getElementById('v-time').value='';
+  document.getElementById('virtualForm').style.display='block';
+  document.getElementById('virtualForm').scrollIntoView({behavior:'smooth'});
+};
+window.closeVirtualForm = function(){
+  document.getElementById('virtualForm').style.display='none';
+  editingVirtualId=null;
+};
+window.editVirtual = function(id,data){
+  editingVirtualId=id;
+  document.getElementById('virtualFormTitle').textContent='Edit Virtual Session';
+  document.getElementById('v-num').value=data.num||'';
+  document.getElementById('v-instructor').value=data.instructor||'';
+  document.getElementById('v-date').value=data.date||'';
+  document.getElementById('v-time').value=data.time||'';
+  document.getElementById('v-topic').value=data.topic||'';
+  document.getElementById('v-link').value=data.link||'';
+  document.getElementById('virtualForm').style.display='block';
+  document.getElementById('virtualForm').scrollIntoView({behavior:'smooth'});
+};
+window.saveVirtualSession = async function(){
+  const data = {
+    num: +document.getElementById('v-num').value||0,
+    instructor: document.getElementById('v-instructor').value.trim(),
+    date: document.getElementById('v-date').value,
+    time: document.getElementById('v-time').value,
+    topic: document.getElementById('v-topic').value.trim(),
+    link: document.getElementById('v-link').value.trim(),
+    updatedAt: serverTimestamp(),
+  };
+  if(!data.instructor||!data.date){ toast('Please fill instructor and date',true); return; }
+  try{
+    if(editingVirtualId){
+      await updateDoc(doc(db,'virtualSessions',editingVirtualId),data);
+      toast('Session updated!');
+    } else {
+      data.createdAt=serverTimestamp();
+      await addDoc(collection(db,'virtualSessions'),data);
+      toast('Session added!');
+    }
+    closeVirtualForm();
+    loadVirtualSessions();
+  }catch(e){ toast('Error: '+e.message,true); }
+};
+window.deleteVirtual = async function(id){
+  if(!confirm('Delete this session?')) return;
+  await deleteDoc(doc(db,'virtualSessions',id));
+  toast('Session deleted!');
+  loadVirtualSessions();
+};
+
+async function loadVirtualSessions(){
+  const snap = await getDocs(query(collection(db,'virtualSessions'),orderBy('num')));
+  const el = document.getElementById('virtualList');
+  if(snap.empty){ el.innerHTML='<div class="empty"><div class="empty-icon">🖥️</div>No sessions yet. Add one above.</div>'; return; }
+  let html='<div class="items-list">';
+  snap.forEach(d=>{
+    const s=d.data();
+    html+=`
+      <div class="item-row">
+        <span class="item-num">S${String(s.num||'?').padStart(2,'0')}</span>
+        <div class="item-info">
+          <div class="title">${s.topic||s.instructor||'Untitled'}</div>
+          <div class="meta">👤 ${s.instructor||'—'} &nbsp;|&nbsp; 📅 ${fmtDate(s.date)} &nbsp;|&nbsp; 🕐 ${fmtTime(s.time)}</div>
+        </div>
+        ${s.link?`<a href="${s.link}" target="_blank" class="btn btn-ghost btn-sm">Join Link</a>`:''}
+        <button class="btn btn-ghost btn-sm" onclick='editVirtual("${d.id}",${JSON.stringify(s)})'>✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick='deleteVirtual("${d.id}")'>🗑️</button>
+      </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// =============================================
+// ===== PRACTICAL SESSIONS =====
+// =============================================
+let editingPracticalId = null;
+
+window.openPracticalForm = function(){
+  editingPracticalId=null;
+  document.getElementById('practicalFormTitle').textContent='Add Practical Session';
+  ['p-num','p-title','p-instructor','p-location','p-desc','p-map','p-duration','p-seats'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-date').value='';
+  document.getElementById('p-time').value='';
+  document.getElementById('p-status').value='open';
+  document.getElementById('practicalForm').style.display='block';
+  document.getElementById('practicalForm').scrollIntoView({behavior:'smooth'});
+};
+window.closePracticalForm = function(){
+  document.getElementById('practicalForm').style.display='none';
+  editingPracticalId=null;
+};
+window.editPractical = function(id,data){
+  editingPracticalId=id;
+  document.getElementById('practicalFormTitle').textContent='Edit Practical Session';
+  document.getElementById('p-num').value=data.num||'';
+  document.getElementById('p-title').value=data.title||'';
+  document.getElementById('p-instructor').value=data.instructor||'';
+  document.getElementById('p-location').value=data.location||'';
+  document.getElementById('p-date').value=data.date||'';
+  document.getElementById('p-time').value=data.time||'';
+  document.getElementById('p-duration').value=data.duration||'';
+  document.getElementById('p-seats').value=data.seats||'';
+  document.getElementById('p-desc').value=data.desc||'';
+  document.getElementById('p-map').value=data.map||'';
+  document.getElementById('p-status').value=data.status||'open';
+  document.getElementById('practicalForm').style.display='block';
+  document.getElementById('practicalForm').scrollIntoView({behavior:'smooth'});
+};
+window.savePracticalSession = async function(){
+  const data={
+    num:+document.getElementById('p-num').value||0,
+    title:document.getElementById('p-title').value.trim(),
+    instructor:document.getElementById('p-instructor').value.trim(),
+    location:document.getElementById('p-location').value.trim(),
+    date:document.getElementById('p-date').value,
+    time:document.getElementById('p-time').value,
+    duration:document.getElementById('p-duration').value.trim(),
+    seats:+document.getElementById('p-seats').value||0,
+    desc:document.getElementById('p-desc').value.trim(),
+    map:document.getElementById('p-map').value.trim(),
+    status:document.getElementById('p-status').value,
+    updatedAt:serverTimestamp(),
+  };
+  if(!data.title||!data.date){ toast('Please fill title and date',true); return; }
+  try{
+    if(editingPracticalId){
+      await updateDoc(doc(db,'practicalSessions',editingPracticalId),data);
+      toast('Lab updated!');
+    } else {
+      data.createdAt=serverTimestamp();
+      await addDoc(collection(db,'practicalSessions'),data);
+      toast('Lab added!');
+    }
+    closePracticalForm();
+    loadPracticalSessions();
+  }catch(e){ toast('Error: '+e.message,true); }
+};
+window.deletePractical = async function(id){
+  if(!confirm('Delete this lab?')) return;
+  await deleteDoc(doc(db,'practicalSessions',id));
+  toast('Lab deleted!');
+  loadPracticalSessions();
+};
+
+async function loadPracticalSessions(){
+  const snap=await getDocs(query(collection(db,'practicalSessions'),orderBy('num')));
+  const el=document.getElementById('practicalList');
+  if(snap.empty){ el.innerHTML='<div class="empty"><div class="empty-icon">📍</div>No labs yet. Add one above.</div>'; return; }
+  let html='<div class="items-list">';
+  snap.forEach(d=>{
+    const s=d.data();
+    const badge=s.status==='open'?'badge-green':s.status==='completed'?'badge-gray':'badge-gray';
+    html+=`
+      <div class="item-row">
+        <span class="item-num">P${String(s.num||'?').padStart(2,'0')}</span>
+        <div class="item-info">
+          <div class="title">${s.title||'Untitled'}</div>
+          <div class="meta">👤 ${s.instructor||'—'} &nbsp;|&nbsp; 📅 ${fmtDate(s.date)} &nbsp;|&nbsp; 📍 ${s.location||'—'} &nbsp;|&nbsp; 💺 ${s.seats||'—'} seats</div>
+        </div>
+        <span class="badge ${badge}">${s.status||'open'}</span>
+        <button class="btn btn-ghost btn-sm" onclick='editPractical("${d.id}",${JSON.stringify(s)})'>✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick='deletePractical("${d.id}")'>🗑️</button>
+      </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// =============================================
+// ===== COURSES =====
+// =============================================
+let editingCourseId=null;
+
+window.openCourseForm=function(){
+  editingCourseId=null;
+  document.getElementById('courseFormTitle').textContent='Add Course';
+  ['c-title','c-tag','c-desc','c-icon'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('c-status').value='published';
+  document.getElementById('courseForm').style.display='block';
+  document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
+};
+window.closeCourseForm=function(){
+  document.getElementById('courseForm').style.display='none';
+  editingCourseId=null;
+};
+window.editCourse=function(id,data){
+  editingCourseId=id;
+  document.getElementById('courseFormTitle').textContent='Edit Course';
+  document.getElementById('c-title').value=data.title||'';
+  document.getElementById('c-tag').value=data.tag||'';
+  document.getElementById('c-desc').value=data.desc||'';
+  document.getElementById('c-icon').value=data.icon||'';
+  document.getElementById('c-status').value=data.status||'published';
+  document.getElementById('courseForm').style.display='block';
+  document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
+};
+window.saveCourse=async function(){
+  const data={
+    title:document.getElementById('c-title').value.trim(),
+    tag:document.getElementById('c-tag').value.trim(),
+    desc:document.getElementById('c-desc').value.trim(),
+    icon:document.getElementById('c-icon').value.trim(),
+    status:document.getElementById('c-status').value,
+    updatedAt:serverTimestamp(),
+  };
+  if(!data.title){ toast('Please enter a course title',true); return; }
+  try{
+    if(editingCourseId){
+      await updateDoc(doc(db,'courses',editingCourseId),data);
+      toast('Course updated!');
+    } else {
+      data.createdAt=serverTimestamp();
+      await addDoc(collection(db,'courses'),data);
+      toast('Course added!');
+    }
+    closeCourseForm();
+    loadCourses();
+  }catch(e){ toast('Error: '+e.message,true); }
+};
+window.deleteCourse=async function(id){
+  if(!confirm('Delete this course?')) return;
+  await deleteDoc(doc(db,'courses',id));
+  toast('Course deleted!');
+  loadCourses();
+};
+
+async function loadCourses(){
+  const snap=await getDocs(collection(db,'courses'));
+  const el=document.getElementById('courseList');
+  if(snap.empty){ el.innerHTML='<div class="empty"><div class="empty-icon">📚</div>No courses yet. Add one above.</div>'; return; }
+  let html='<div class="items-list">';
+  snap.forEach(d=>{
+    const s=d.data();
+    const badge=s.status==='published'?'badge-green':s.status==='draft'?'badge-gray':'badge-blue';
+    html+=`
+      <div class="item-row">
+        <span style="font-size:24px;">${s.icon||'📘'}</span>
+        <div class="item-info">
+          <div class="title">${s.title||'Untitled'}</div>
+          <div class="meta">${s.tag||'No category'} ${s.desc?'— '+s.desc.substring(0,60)+'...':''}</div>
+        </div>
+        <span class="badge ${badge}">${s.status||'published'}</span>
+        <button class="btn btn-ghost btn-sm" onclick='editCourse("${d.id}",${JSON.stringify(s)})'>✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick='deleteCourse("${d.id}")'>🗑️</button>
+      </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// =============================================
+// ===== VIDEOS =====
+// =============================================
+let editingVideoId=null;
+
+window.openVideoForm=function(){
+  editingVideoId=null;
+  document.getElementById('videoFormTitle').textContent='Add Video';
+  ['vid-title','vid-cat','vid-url','vid-duration','vid-session'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('videoForm').style.display='block';
+  document.getElementById('videoForm').scrollIntoView({behavior:'smooth'});
+};
+window.closeVideoForm=function(){
+  document.getElementById('videoForm').style.display='none';
+  editingVideoId=null;
+};
+window.editVideo=function(id,data){
+  editingVideoId=id;
+  document.getElementById('videoFormTitle').textContent='Edit Video';
+  document.getElementById('vid-title').value=data.title||'';
+  document.getElementById('vid-cat').value=data.category||'';
+  document.getElementById('vid-url').value=data.url||'';
+  document.getElementById('vid-duration').value=data.duration||'';
+  document.getElementById('vid-session').value=data.session||'';
+  document.getElementById('videoForm').style.display='block';
+  document.getElementById('videoForm').scrollIntoView({behavior:'smooth'});
+};
+window.saveVideo=async function(){
+  const data={
+    title:document.getElementById('vid-title').value.trim(),
+    category:document.getElementById('vid-cat').value.trim(),
+    url:document.getElementById('vid-url').value.trim(),
+    duration:document.getElementById('vid-duration').value.trim(),
+    session:document.getElementById('vid-session').value.trim(),
+    updatedAt:serverTimestamp(),
+  };
+  if(!data.title||!data.url){ toast('Please fill title and URL',true); return; }
+  try{
+    if(editingVideoId){
+      await updateDoc(doc(db,'videos',editingVideoId),data);
+      toast('Video updated!');
+    } else {
+      data.createdAt=serverTimestamp();
+      await addDoc(collection(db,'videos'),data);
+      toast('Video added!');
+    }
+    closeVideoForm();
+    loadVideos();
+  }catch(e){ toast('Error: '+e.message,true); }
+};
+window.deleteVideo=async function(id){
+  if(!confirm('Delete this video?')) return;
+  await deleteDoc(doc(db,'videos',id));
+  toast('Video deleted!');
+  loadVideos();
+};
+
+async function loadVideos(){
+  const snap=await getDocs(collection(db,'videos'));
+  const el=document.getElementById('videoList');
+  if(snap.empty){ el.innerHTML='<div class="empty"><div class="empty-icon">🎬</div>No videos yet. Add one above.</div>'; return; }
+  let html='<div class="items-list">';
+  snap.forEach(d=>{
+    const s=d.data();
+    html+=`
+      <div class="item-row">
+        <span style="font-size:22px;">▶️</span>
+        <div class="item-info">
+          <div class="title">${s.title||'Untitled'}</div>
+          <div class="meta">${s.category||'—'} ${s.session?'| '+s.session:''} ${s.duration?'| ⏱ '+s.duration:''}</div>
+        </div>
+        <a href="${s.url}" target="_blank" class="btn btn-ghost btn-sm">Open</a>
+        <button class="btn btn-ghost btn-sm" onclick='editVideo("${d.id}",${JSON.stringify(s)})'>✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick='deleteVideo("${d.id}")'>🗑️</button>
+      </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// =============================================
+// ===== FILES =====
+// =============================================
+let editingFileId=null;
+
+window.openFileForm=function(){
+  editingFileId=null;
+  document.getElementById('fileFormTitle').textContent='Add File';
+  ['f-title','f-url','f-session','f-size'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-type').value='PDF';
+  document.getElementById('fileForm').style.display='block';
+  document.getElementById('fileForm').scrollIntoView({behavior:'smooth'});
+};
+window.closeFileForm=function(){
+  document.getElementById('fileForm').style.display='none';
+  editingFileId=null;
+};
+window.editFile=function(id,data){
+  editingFileId=id;
+  document.getElementById('fileFormTitle').textContent='Edit File';
+  document.getElementById('f-title').value=data.title||'';
+  document.getElementById('f-type').value=data.type||'PDF';
+  document.getElementById('f-url').value=data.url||'';
+  document.getElementById('f-session').value=data.session||'';
+  document.getElementById('f-size').value=data.size||'';
+  document.getElementById('fileForm').style.display='block';
+  document.getElementById('fileForm').scrollIntoView({behavior:'smooth'});
+};
+window.saveFile=async function(){
+  const data={
+    title:document.getElementById('f-title').value.trim(),
+    type:document.getElementById('f-type').value,
+    url:document.getElementById('f-url').value.trim(),
+    session:document.getElementById('f-session').value.trim(),
+    size:document.getElementById('f-size').value.trim(),
+    updatedAt:serverTimestamp(),
+  };
+  if(!data.title||!data.url){ toast('Please fill file name and URL',true); return; }
+  try{
+    if(editingFileId){
+      await updateDoc(doc(db,'files',editingFileId),data);
+      toast('File updated!');
+    } else {
+      data.createdAt=serverTimestamp();
+      await addDoc(collection(db,'files'),data);
+      toast('File added!');
+    }
+    closeFileForm();
+    loadFiles();
+  }catch(e){ toast('Error: '+e.message,true); }
+};
+window.deleteFile=async function(id){
+  if(!confirm('Delete this file?')) return;
+  await deleteDoc(doc(db,'files',id));
+  toast('File deleted!');
+  loadFiles();
+};
+
+async function loadFiles(){
+  const snap=await getDocs(collection(db,'files'));
+  const el=document.getElementById('fileList');
+  if(snap.empty){ el.innerHTML='<div class="empty"><div class="empty-icon">📁</div>No files yet. Add one above.</div>'; return; }
+  let html='<div class="items-list">';
+  snap.forEach(d=>{
+    const s=d.data();
+    const typeIcon={'PDF':'📄','Slides':'🖼️','Doc':'📝','Sheet':'📊','ZIP':'🗜️','Other':'📦'}[s.type]||'📄';
+    html+=`
+      <div class="item-row">
+        <span style="font-size:22px;">${typeIcon}</span>
+        <div class="item-info">
+          <div class="title">${s.title||'Untitled'}</div>
+          <div class="meta">${s.type||'—'} ${s.session?'| '+s.session:''} ${s.size?'| '+s.size:''}</div>
+        </div>
+        <a href="${s.url}" target="_blank" class="btn btn-ghost btn-sm">Open</a>
+        <button class="btn btn-ghost btn-sm" onclick='editFile("${d.id}",${JSON.stringify(s)})'>✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick='deleteFile("${d.id}")'>🗑️</button>
+      </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// =============================================
+// ===== STUDENTS =====
+// =============================================
+let allStudents=[];
+
+async function loadStudents(){
+  const snap=await getDocs(collection(db,'students'));
+  allStudents=[];
+  snap.forEach(d=>allStudents.push({id:d.id,...d.data()}));
+  allStudents.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  renderStudents(allStudents);
+}
+
+function renderStudents(list){
+  const el=document.getElementById('studentsTable');
+  if(list.length===0){ el.innerHTML='<div class="empty"><div class="empty-icon">👥</div>No students found.</div>'; return; }
+  let html='<div class="table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Age</th><th>Joined</th></tr></thead><tbody>';
+  list.forEach((s,i)=>{
+    const joined=s.createdAt?.toDate?s.createdAt.toDate().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+    html+=`<tr>
+      <td style="color:var(--ink-faint);font-family:'JetBrains Mono';font-size:12px;">${i+1}</td>
+      <td><span class="name">${s.fullName||'—'}</span></td>
+      <td>${s.email||'—'}</td>
+      <td>${s.phone||'—'}</td>
+      <td>${s.age||'—'}</td>
+      <td>${joined}</td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+
+window.filterStudents=function(){
+  const q=document.getElementById('studentSearch').value.toLowerCase();
+  const filtered=allStudents.filter(s=>
+    (s.fullName||'').toLowerCase().includes(q)||(s.email||'').toLowerCase().includes(q)
+  );
+  renderStudents(filtered);
+};
+
+// ===== ADMIN GUARD =====
+// الصفحة مخفية بالكامل في البداية — بتظهر بس لو role = "admin"
+document.body.style.display = 'none';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = 'index.html';
+    return;
+  }
+  try {
+    const snap = await getDoc(doc(db, 'students', user.uid));
+    const profile = snap.exists() ? snap.data() : null;
+
+    if (!profile || profile.role !== 'admin') {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // ✅ أدمن حقيقي
+    document.body.style.display = 'flex';
+    const nameEl = document.querySelector('.admin-info .name');
+    if (nameEl) nameEl.textContent = profile.fullName || 'Admin';
+    loadDashboard();
+
+  } catch (e) {
+    console.error('Admin check failed:', e);
+    window.location.href = 'index.html';
+  }
+});
+
+</script>
+</body>
+</html>
